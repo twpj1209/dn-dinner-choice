@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#faf5ef" />
+  <meta name="description" content="一份非常正式的第二次約會晚餐投票。" />
+  <title>第二次約會 📋</title>
+  <style>
+    :root{font-family:ui-sans-serif,system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif;color:#40332f;background:#faf5ef;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:26px 16px}
+    main{width:min(100%,480px);background:#fffdf9;border:1px solid #eee0d4;border-radius:25px;padding:32px 24px;box-shadow:0 14px 50px #5e423111}
+    .eyebrow{text-align:center;font-size:11px;letter-spacing:2px;color:#a27d70;font-weight:700}h1{text-align:center;font-size:clamp(25px,7vw,34px);margin:14px 0 18px;letter-spacing:1px}
+    .intro{text-align:center;line-height:1.9;color:#75665e;margin:0 0 24px}.intro strong{color:#40332f;font-size:20px}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.choice{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;background:#fff;border:2px solid #eadfd5;border-radius:16px;padding:18px 9px;transition:transform .2s,border-color .2s,background .2s;color:inherit;font:inherit;min-height:158px}
+    .choice:hover{transform:translateY(-3px)}.choice[aria-pressed="true"]{border-color:#bc8c7b;background:#f8ebe1}.emoji{font-size:44px}.choice strong{font-size:17px}.choice small{font-size:12px;line-height:1.5;color:#806e66}
+    .restaurant{display:flex;flex-direction:column;gap:6px;min-width:0}.restaurant .choice{width:100%;flex:1}.map-link{text-align:center;font-size:12px;color:#8f675b;text-decoration:none;padding:7px}.map-link:hover{text-decoration:underline}.any-choice{grid-column:1/-1;min-height:110px;padding:14px}.any-choice .emoji{font-size:32px}
+    .location{text-align:center;font-size:12px;color:#927c71;margin:22px 0}.primary{display:block;width:100%;border:0;border-radius:12px;padding:15px 18px;background:#8f675b;color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer;transition:opacity .2s,transform .2s}.primary:disabled{opacity:.4;cursor:not-allowed}.primary:not(:disabled):hover{transform:translateY(-1px)}
+    .result{margin-top:20px;padding:20px 15px;background:#f3e8dc;border-radius:15px;text-align:center;animation:pop .4s ease-out}.result h2{margin:0 0 12px;font-size:22px}.result p{line-height:1.8;margin:8px 0}.result .note{font-size:12px;color:#816f65}.secondary{border:1px solid #bd9c8c;border-radius:10px;background:#fffdf9;color:#705144;padding:11px 14px;font:inherit;cursor:pointer;margin-top:12px;font-weight:600}
+    .hidden{display:none}.footer{text-align:center;margin:18px 0 0;color:#a28e83;font-size:11px}@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">DATE NO. 02</div>
+    <h1>第二次約會拉 📋</h1>
+    <p class="intro">10/27 電影Clayface 6:40PM 已經決定好啦! <br>想請問哦吼~Anna小姐姐晚餐有沒有preference<br>以下開放成功人士投票 👇</p>
+    <section class="choices" aria-label="晚餐選擇">
+      <div class="restaurant">
+        <button class="choice" type="button" data-name="Habana" aria-pressed="false"><span class="emoji" aria-hidden="true">🍹</span><strong>Habana</strong><small>古巴料理<br>感覺很厲害</small></button>
+        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Habana%20Irvine%20Spectrum" target="_blank" rel="noopener noreferrer">📍 看地圖 ↗</a>
+      </div>
+      <div class="restaurant">
+        <button class="choice" type="button" data-name="鼎泰豐" aria-pressed="false"><span class="emoji" aria-hidden="true">🥟</span><strong>鼎泰豐</strong><small>小籠包<br>應該不會背叛我們</small></button>
+        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Din%20Tai%20Fung%20Irvine%20Spectrum" target="_blank" rel="noopener noreferrer">📍 看地圖 ↗</a>
+      </div>
+      <button class="choice any-choice" type="button" data-name="都可以" aria-pressed="false"><span class="emoji" aria-hidden="true">🤷‍♀️</span><strong>都可以</strong><small>Joe重生後決定自己吃什麼</small></button>
+    </section>
+    <p class="location">📍 Irvine Spectrum · 電影結束後</p>
+    <button class="primary" id="confirm" type="button" disabled>就吃這個吧！</button>
+    <p class="footer" id="status" role="status" aria-live="polite"></p>
+    <section class="result hidden" id="result" aria-live="polite">
+      <h2>投票已送出！🎉</h2>
+      <p>本次晚餐由 <strong id="chosen"></strong> 獲得 100% 選票!!</p>
+      <p><strong>很緊張的 Joe 感謝您的 input 🫡</strong></p>
+    </section>
+  </main>
+  <script>
+    const choices = [...document.querySelectorAll('.choice')];
+    const confirmButton = document.getElementById('confirm');
+    const result = document.getElementById('result');
+    const chosen = document.getElementById('chosen');
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwpxbOBvLQtAMoztufPGv38UQuL8sdbRjMgshOhuV-Bvi8UokH9RVxdTFBYh21VF4rNhg/exec';
+    const status = document.getElementById('status');
+    let selected = '';
+    let submitted = false;
+    choices.forEach(button => button.addEventListener('click', () => {
+      if (submitted) return;
+      selected = button.dataset.name;
+      choices.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      confirmButton.disabled = false;
+      result.classList.add('hidden');
+      status.textContent = '';
+    }));
+    confirmButton.addEventListener('click', async () => {
+      if (!selected || submitted) return;
+      if (!SCRIPT_URL.startsWith('https://script.google.com/macros/s/')) {
+        status.textContent = '網站還沒設定 Google Sheets 連結，Joe要被炒魷魚了';
+        return;
+      }
+      confirmButton.disabled = true;
+      confirmButton.textContent = '傳送中…';
+      status.textContent = '';
+      try {
+          await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: new URLSearchParams({restaurant: selected}).toString()
+        });
+        submitted = true;
+        choices.forEach(item => { item.disabled = true; });
+        chosen.textContent = selected;
+        result.classList.remove('hidden');
+        status.textContent = 'Weeeeeeeee';
+        result.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'nearest'});
+      } catch (error) {
+        status.textContent = '網路傳送失敗，Joe要被炒魷魚了。';
+        confirmButton.disabled = false;
+      } finally {
+        confirmButton.textContent = '就吃這個！';
+      }
+    });
+  </script>
+</body>
+</html>
