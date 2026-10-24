@@ -45,52 +45,82 @@
       <p><strong>很緊張的 Joe 感謝您的input</strong></p>
     </section>
   </main>
-  <script>
-    const choices = [...document.querySelectorAll('.choice')];
-    const confirmButton = document.getElementById('confirm');
-    const result = document.getElementById('result');
-    const chosen = document.getElementById('chosen');
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwpxbOBvLQtAMoztufPGv38UQuL8sdbRjMgshOhuV-Bvi8UokH9RVxdTFBYh21VF4rNhg/exec';
-    const status = document.getElementById('status');
-    let selected = '';
-    let submitted = false;
-    choices.forEach(button => button.addEventListener('click', () => {
+  
+<script>
+  const choices = [...document.querySelectorAll('.choice')];
+  const confirmButton = document.getElementById('confirm');
+  const result = document.getElementById('result');
+  const status = document.getElementById('status');
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwpxbOBvLQtAMoztufPGv38UQuL8sdbRjMgshOhuV-Bvi8UokH9RVxdTFBYh21VF4rNhg/exec';
+
+  let selected = '';
+  let submitted = false;
+
+  choices.forEach(button => {
+    button.addEventListener('click', () => {
       if (submitted) return;
+
       selected = button.dataset.name;
-      choices.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+
+      choices.forEach(item => {
+        item.setAttribute(
+          'aria-pressed',
+          String(item === button)
+        );
+      });
+
       confirmButton.disabled = false;
-      result.classList.add('hidden');
       status.textContent = '';
-    }));
-    confirmButton.addEventListener('click', async () => {
-      if (!selected || submitted) return;
-      if (!SCRIPT_URL.startsWith('https://script.google.com/macros/s/')) {
-        status.textContent = '網站還沒設定 Google Sheets 連結，Joe要被炒魷魚了';
-        return;
-      }
-      confirmButton.disabled = true;
-      confirmButton.textContent = '傳送中…';
-      status.textContent = '';
-      try {
-          await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          body: new URLSearchParams({restaurant: selected}).toString()
-        });
-        submitted = true;
-        choices.forEach(item => { item.disabled = true; });
-        chosen.textContent = selected;
-        result.classList.remove('hidden');
-        status.textContent = 'Weeeeeeeee';
-        result.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'nearest'});
-      } catch (error) {
-        status.textContent = '網路傳送失敗，Joe要被炒魷魚了。';
-        confirmButton.disabled = false;
-      } finally {
-        confirmButton.textContent = '就吃這個！';
-      }
     });
-  </script>
+  });
+
+  confirmButton.addEventListener('click', async () => {
+    if (!selected || submitted) return;
+
+    confirmButton.disabled = true;
+    confirmButton.textContent = '傳送中…';
+    status.textContent = '';
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          restaurant: selected
+        }).toString()
+      });
+
+      submitted = true;
+
+      choices.forEach(button => {
+        button.disabled = true;
+      });
+
+      confirmButton.textContent = '已送出！';
+      result.classList.remove('hidden');
+
+      status.textContent = 'Weeeeeeeee 🎉';
+
+      result.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant'
+          : 'smooth',
+        block: 'nearest'
+      });
+
+    } catch (error) {
+      console.error('Submission error:', error);
+
+      status.textContent = '網路傳送失敗，Joe要被炒魷魚了。';
+
+      confirmButton.disabled = false;
+      confirmButton.textContent = '就吃這個吧！';
+    }
+  });
+</script>
 </body>
 </html>
